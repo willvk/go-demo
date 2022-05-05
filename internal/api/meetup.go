@@ -44,7 +44,14 @@ func (m MeetupAPI) CreateMeetup(c echo.Context) error {
 		return meetupError(c, http.StatusBadRequest, fmt.Sprintf("Error creating meetup. Reason: %s", err.Error()))
 	}
 
-	_, persistenceError := m.persistence.StoreMeetup(ctx, &persistence.CreateMeetupRequest{})
+	// if remind date is nil, it just gets passed through as nil
+	_, persistenceError := m.persistence.StoreMeetup(ctx, &persistence.Meetup{
+		MeetupID:        uuid.String(),
+		AttendeeList:    createMeetupRequest.AttendeeList,
+		Organiser:       createMeetupRequest.Organiser,
+		PlannedDateTime: createMeetupRequest.PlannedDateTime,
+		RemindDateTime:  createMeetupRequest.RemindDateTime,
+	})
 	if persistenceError != nil {
 		log.Ctx(ctx).Error().Err(persistenceError).Interface("MeetupID", uuid).Msg("error storing meetup")
 		return meetupError(c, http.StatusInternalServerError, "Error creating meetup. Internal Error")
