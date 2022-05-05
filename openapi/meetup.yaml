@@ -1,0 +1,179 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Meetups API
+  description: An API allowing users to create and track meetup attendance
+  contact:
+    name: "William Van Keulen"
+    email: "will.vk@hotmail.com"
+
+# Enable request validator. See doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-validation-sample-api-swagger.html
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: all
+
+x-amazon-apigateway-gateway-responses:
+  # Provide more detailed error message for bad request body errors. See doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.html
+  BAD_REQUEST_BODY:
+    responseTemplates:
+      application/json: '{"Code": "400", "Message": "$context.error.validationErrorString"}'
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+
+paths:
+  /meetup:
+    put:
+      summary: Creates a meetup
+      description: |
+        Creates a meetup
+      tags:
+        - meetup
+      operationId: createMeetup
+      responses:
+        "201":
+          description: Successful Meetup Creation Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetupResponse"
+        '401':
+          description: Unauthorised.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error Creating Meetup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APILambda.Arn}:live/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      security:
+        - BasicAuth: []
+
+    delete:
+      summary: deletes a meetup
+      description: |
+        deletes a meetup
+      tags:
+        - meetup
+      operationId: deleteMeetup
+      responses:
+        "200":
+          description: Successful Meetup Deletion Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetupResponse"
+        '401':
+          description: Unauthorised.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error Deleting Meetup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APILambda.Arn}:live/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      security:
+        - BasicAuth: []
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    MeetupResponse:
+      required:
+        - MeetupID
+        - Meetup
+      properties:
+        MeetupID:
+          type: string
+          description: "Unique ID of the created meetup"
+          example: "abc123"
+        Meetup:
+          $ref: "#/components/schemas/Meetup"
+
+    Meetup:
+      required:
+        - Organiser
+        - AttendeeList
+        - PlannedDateTime
+      properties:
+        Organiser:
+          type: string
+          description: "username of organiser."
+          pattern: '[0-9a-f]*'
+        AttendeeList:
+          type: array
+          items:
+            type: string
+            description: "usernames of attendees"
+            minItems: 1
+            maxItems: 50
+            uniqueItems: true
+        PlannedDateTime:
+          type: string
+          format: date-time
+          description: "Meetup Date and Time"
+        RemindDateTime:
+          type: string
+          format: date-time
+          description: "Meetup Reminder Date and Time"
+
+    ErrorResponse:
+      required:
+        - Error
+      properties:
+        Error:
+          $ref: "#/components/schemas/Error"
+
+    Error:
+      required:
+        - Code
+        - Message
+      properties:
+        Code:
+          type: integer
+          format: int32
+          description: Error code
+        Message:
+          type: string
+          description: Error message
