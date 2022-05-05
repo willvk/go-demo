@@ -11,16 +11,16 @@ import (
 // Flags the flags/env vars passed to the service to configure it
 // Limit these to items the user should pass in.
 type Flags struct {
-	RawEventLogging     bool   `help:"Enable raw event logging." env:"RAW_EVENT_LOGGING" mapstructure:"-"`
-	LogLevel            string `help:"Set logging level" env:"LOG_LEVEL" mapstructure:"-"`
-	Stage               string `help:"The development stage." env:"STAGE" mapstructure:"stage"`
-	Branch              string `help:"The git branch this code originated." env:"BRANCH" mapstructure:"branch"`
-	DependencyBranch    string `help:"Git branch for downstream dependencies" env:"DEPENDENCY_BRANCH" mapstructure:"-"`
-	AWSAccountID        string `help:"The aws account ID." env:"AWS_ACCOUNT_ID" mapstructure:"aws_account_id"`
-	RunLocal            bool   `help:"Run HTTP server locally on port 3000" env:"RUN_LOCAL" mapstructure:"-"`
-	SentryDSN           string `help:"The sentry DSN string for error logging." env:"SENTRY_DSN" mapstructure:"-"`
-	CredentialStoreName string `help:"AWS DynamoDB table name for Bearer Token Store" env:"CREDENTIAL_TABLE_NAME" mapstructure:"-"`
-	CustomDomainName    string `help:"Custom Domain Name for the environment'" env:"DNS_NAME" mapstructure:"-"`
+	RawEventLogging  bool   `help:"Enable raw event logging." env:"RAW_EVENT_LOGGING" mapstructure:"-"`
+	LogLevel         string `help:"Set logging level" env:"LOG_LEVEL" mapstructure:"-"`
+	Stage            string `help:"The development stage." env:"STAGE" mapstructure:"stage"`
+	Branch           string `help:"The git branch this code originated." env:"BRANCH" mapstructure:"branch"`
+	DependencyBranch string `help:"Git branch for downstream dependencies" env:"DEPENDENCY_BRANCH" mapstructure:"-"`
+	AWSAccountID     string `help:"The aws account ID." env:"AWS_ACCOUNT_ID" mapstructure:"aws_account_id"`
+	RunLocal         bool   `help:"Run HTTP server locally on port 3000" env:"RUN_LOCAL" mapstructure:"-"`
+	SentryDSN        string `help:"The sentry DSN string for error logging." env:"SENTRY_DSN" mapstructure:"-"`
+	MeetupStoreName  string `help:"AWS DynamoDB table name for Bearer Token Store" env:"MEETUP_TABLE_NAME" mapstructure:"-"`
+	CustomDomainName string `help:"Custom Domain Name for the environment'" env:"DNS_NAME" mapstructure:"-"`
 }
 
 // ParseLogLevel parses value of LogLevel into a zerolog level

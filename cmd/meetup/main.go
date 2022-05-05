@@ -30,7 +30,7 @@ func main() {
 	// Setup API instance and its dependencies
 	// Credential persistence client used by the Meetup API to persist meetups
 	ddbClient := dynamodb.New(sess)
-	p := persistence.NewMeetupPersistence(ddbClient, cmdFlags.CredentialStoreName)
+	p := persistence.NewMeetupPersistence(ddbClient, cmdFlags.MeetupStoreName)
 	meetupAPI := api.NewMeetupAPI(p, cmdFlags.CustomDomainName)
 
 	// Echo instance

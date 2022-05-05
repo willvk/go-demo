@@ -37,6 +37,11 @@ paths:
       tags:
         - meetup
       operationId: createMeetup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Meetup"
       responses:
         "201":
           description: Successful Meetup Creation Response

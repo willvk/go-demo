@@ -46,3 +46,9 @@ type MeetupResponse struct {
 	// Unique ID of the created meetup
 	MeetupID string `json:"MeetupID"`
 }
+
+// CreateMeetupJSONBody defines parameters for CreateMeetup.
+type CreateMeetupJSONBody Meetup
+
+// CreateMeetupJSONRequestBody defines body for CreateMeetup for application/json ContentType.
+type CreateMeetupJSONRequestBody CreateMeetupJSONBody

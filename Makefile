@@ -72,7 +72,8 @@ docker-ci:
 	@docker run --rm \
 		-v $(shell pwd):/src \
 		-v $(SSH_AUTH_SOCK):/ssh-agent:ro -e SSH_AUTH_SOCK=/ssh-agent \
-		-w /src -t golang:$(GO_DOCKER_VERSION) make clean git-config build
+		-w /src -t golang:$(GO_DOCKER_VERSION) make clean git-config build \
+		-w $(shell ./dist/meetup)
 .PHONY: docker-ci
 
 ###################
@@ -92,7 +93,8 @@ generate:
 
 build: generate
 	@echo "--- build all the things"
-	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a $(LDFLAGS) -o dist/ ./cmd/
+#	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a $(LDFLAGS) -o dist/ ./cmd/meetup/
+	@GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -a $(LDFLAGS) -o dist/ ./cmd/meetup/
 
 ###################
 # Deploy commands #

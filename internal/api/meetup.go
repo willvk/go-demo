@@ -1,7 +1,11 @@
 package api
 
 import (
+	"fmt"
+	uuid2 "github.com/google/uuid"
+	"github.com/honeycombio/beeline-go"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 	"github.com/willvk/go-demo/internal/openapi"
 	"github.com/willvk/go-demo/internal/persistence"
 	"net/http"
@@ -28,9 +32,33 @@ func (m MeetupAPI) DeleteMeetup(ctx echo.Context) error {
 	return meetupError(ctx, http.StatusInternalServerError, "Error creating meetup. Reason: Not Yet Implemented")
 }
 
-func (m MeetupAPI) CreateMeetup(ctx echo.Context) error {
-	//TODO implement me
-	return meetupError(ctx, http.StatusInternalServerError, "Error creating meetup. Reason: Not Yet Implemented")
+func (m MeetupAPI) CreateMeetup(c echo.Context) error {
+	ctx, span := beeline.StartSpan(c.Request().Context(), "meetups.CreateMeetup")
+	defer span.Send()
+
+	// process request body
+	uuid, _ := uuid2.NewUUID()
+	var createMeetupRequest openapi.CreateMeetupJSONBody
+	if err := c.Bind(&createMeetupRequest); err != nil {
+		log.Ctx(ctx).Error().Err(err).Interface("MeetupID", uuid).Msg("error parsing request")
+		return meetupError(c, http.StatusBadRequest, fmt.Sprintf("Error creating meetup. Reason: %s", err.Error()))
+	}
+
+	_, persistenceError := m.persistence.StoreMeetup(ctx, &persistence.CreateMeetupRequest{})
+	if persistenceError != nil {
+		log.Ctx(ctx).Error().Err(persistenceError).Interface("MeetupID", uuid).Msg("error storing meetup")
+		return meetupError(c, http.StatusInternalServerError, "Error creating meetup. Internal Error")
+	}
+
+	return c.JSON(http.StatusCreated, &openapi.MeetupResponse{
+		Meetup: openapi.Meetup{
+			AttendeeList:    createMeetupRequest.AttendeeList,
+			Organiser:       createMeetupRequest.Organiser,
+			PlannedDateTime: createMeetupRequest.PlannedDateTime,
+			RemindDateTime:  createMeetupRequest.RemindDateTime,
+		},
+		MeetupID: uuid.String(),
+	})
 }
 
 func meetupError(c echo.Context, httpCode int, message string) error {
