@@ -1,5 +1,5 @@
 *handler.zip
-*.bin
+*bin
 .idea/
 *dist/
 .envrc
