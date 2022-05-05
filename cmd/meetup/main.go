@@ -2,10 +2,14 @@ package main
 
 import (
 	"github.com/alecthomas/kong"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/willvk/go-demo/internal/api"
 	"github.com/willvk/go-demo/internal/app"
 	"github.com/willvk/go-demo/internal/flags"
+	"github.com/willvk/go-demo/internal/openapi"
+	"github.com/willvk/go-demo/internal/persistence"
+	"github.com/willvk/go-demo/internal/router"
 )
 
 func main() {
@@ -21,20 +25,19 @@ func main() {
 
 	// Configure AWS Session and service clients
 	// later
-	// sess := session.Must(session.NewSession())
+	sess := session.Must(session.NewSession())
 
 	// Setup API instance and its dependencies
-	// Credential persistence client used by the Onboarding API to persist credentials
-	//ddbClient := dynamodb.New(sess)
-	//p := persistence.NewCredentialPersistence(ddbClient, cmdFlags.CredentialStoreName)
-	//onboardingAPI := api.NewOnboardingAPI(p, tk, cmdFlags.CustomDomainName)
+	// Credential persistence client used by the Meetup API to persist meetups
+	ddbClient := dynamodb.New(sess)
+	p := persistence.NewMeetupPersistence(ddbClient, cmdFlags.CredentialStoreName)
+	meetupAPI := api.NewMeetupAPI(p, cmdFlags.CustomDomainName)
 
 	// Echo instance
-	e := echo.New()
+	e := router.New()
 
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// Register route handlers
+	openapi.RegisterHandlers(e, meetupAPI)
 
 	if cmdFlags.RunLocal {
 		// Start the server (local run only) - useful for testing endpoints locally
