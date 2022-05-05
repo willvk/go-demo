@@ -9,6 +9,7 @@ import (
 	"github.com/willvk/go-demo/internal/openapi"
 	"github.com/willvk/go-demo/internal/persistence"
 	"net/http"
+	"time"
 )
 
 // NewMeetupAPI creates an instance of Onboarding API
@@ -35,6 +36,8 @@ func (m MeetupAPI) DeleteMeetup(ctx echo.Context) error {
 func (m MeetupAPI) CreateMeetup(c echo.Context) error {
 	ctx, span := beeline.StartSpan(c.Request().Context(), "meetups.CreateMeetup")
 	defer span.Send()
+	logger := log.With().Str("component", "meetup").Logger()
+	loggctx := logger.WithContext(c.Request().Context())
 
 	// process request body
 	uuid, _ := uuid2.NewUUID()
@@ -43,6 +46,9 @@ func (m MeetupAPI) CreateMeetup(c echo.Context) error {
 		log.Ctx(ctx).Error().Err(err).Interface("MeetupID", uuid).Msg("error parsing request")
 		return meetupError(c, http.StatusBadRequest, fmt.Sprintf("Error creating meetup. Reason: %s", err.Error()))
 	}
+
+	log.Ctx(loggctx).Info().Interface("MeetupID", uuid).Interface("Organiser", createMeetupRequest.Organiser).
+		Msg(fmt.Sprintf("Creating Meetup for Date: %v", createMeetupRequest.PlannedDateTime.Format(time.RFC3339)))
 
 	// if remind date is nil, it just gets passed through as nil
 	_, persistenceError := m.persistence.StoreMeetup(ctx, &persistence.Meetup{
