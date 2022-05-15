@@ -41,7 +41,7 @@ func (m MeetupAPI) CreateMeetup(c echo.Context) error {
 
 	// process request body
 	uuid, _ := uuid2.NewUUID()
-	var createMeetupRequest openapi.CreateMeetupJSONBody
+	createMeetupRequest := new(openapi.CreateMeetupJSONBody)
 	if err := c.Bind(&createMeetupRequest); err != nil {
 		log.Ctx(ctx).Error().Err(err).Interface("MeetupID", uuid).Msg("error parsing request")
 		return meetupError(c, http.StatusBadRequest, fmt.Sprintf("Error creating meetup. Reason: %s", err.Error()))

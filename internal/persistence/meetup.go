@@ -78,7 +78,7 @@ func (m MeetupStore) StoreMeetup(ctx context.Context, meetup *Meetup) (*Meetup, 
 		RemindDateTime:  meetup.RemindDateTime.Format(time.RFC3339),
 	}
 
-	// ** Store the new cred into the ddb
+	// ** Store the new meetup into the ddb
 	itemRecord, errTo := dynamodbattribute.MarshalMap(newRecord)
 	if errTo != nil {
 		return nil, errors.Wrapf(errTo, "error cannot marshall items to store database object")
